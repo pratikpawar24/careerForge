@@ -38,6 +38,10 @@ public class User {
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
+    public void markEmailAsVerified() {
+        this.emailVerified = true;
+    }
+
     @PrePersist
     private void prePersist() {
         Instant now = Instant.now();
