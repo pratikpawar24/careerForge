@@ -1,8 +1,10 @@
 package com.careerforge.careerforge.auth.application;
 
-
-
-
+import com.careerforge.careerforge.auth.api.ResendOtpRequest;
+import com.careerforge.careerforge.auth.api.ResendOtpResponse;
+import com.careerforge.careerforge.auth.api.LoginRequest;
+import com.careerforge.careerforge.auth.api.LoginResponse;
+import com.careerforge.careerforge.common.security.JwtService;
 import com.careerforge.careerforge.auth.api.RegisterRequest;
 import com.careerforge.careerforge.auth.api.RegisterResponse;
 import com.careerforge.careerforge.auth.api.VerifyOtpRequest;
@@ -29,7 +31,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AuthService {
 
     private static final Duration OTP_EXPIRY = Duration.ofMinutes(10);
-
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final EmailVerificationOtpRepository otpRepository;
@@ -41,13 +43,15 @@ public class AuthService {
             ProfileRepository profileRepository,
             EmailVerificationOtpRepository otpRepository,
             PasswordEncoder passwordEncoder,
-            EmailService emailService
+            EmailService emailService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.otpRepository = otpRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.jwtService = jwtService;
     }
     @Transactional
     public void verifyEmail(VerifyOtpRequest request) {
@@ -136,4 +140,76 @@ public class AuthService {
         int otp = ThreadLocalRandom.current().nextInt(100000, 1_000_000);
         return String.valueOf(otp);
     }
+
+    public LoginResponse login(LoginRequest request) {
+
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        boolean passwordMatches = passwordEncoder.matches(
+                request.password(),
+                user.getPasswordHash()
+        );
+
+        if (!passwordMatches) {
+            throw new InvalidCredentialsException();
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalStateException(
+                    "Please verify your email before logging in"
+            );
+        }
+
+        String accessToken = jwtService.generateAccessToken(
+                user.getId(),
+                user.getEmail()
+        );
+
+        return new LoginResponse(
+                accessToken,
+                "Bearer"
+        );
+    }
+
+    @Transactional
+    public ResendOtpResponse resendOtp(ResendOtpRequest request) {
+
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (user.isEmailVerified()) {
+            return new ResendOtpResponse(
+                    "Email is already verified"
+            );
+        }
+
+        otpRepository
+                .findTopByUserAndVerifiedAtIsNullAndInvalidatedAtIsNullOrderByCreatedAtDesc(user)
+                .ifPresent(EmailVerificationOtp::invalidate);
+
+        String otp = generateOtp();
+
+        EmailVerificationOtp newOtp = new EmailVerificationOtp(
+                user,
+                passwordEncoder.encode(otp),
+                Instant.now().plus(OTP_EXPIRY)
+        );
+
+        otpRepository.save(newOtp);
+
+        emailService.sendVerificationOtp(
+                user.getEmail(),
+                otp
+        );
+
+        return new ResendOtpResponse(
+                "A new verification OTP has been sent to your email"
+        );
+    }
+
 }

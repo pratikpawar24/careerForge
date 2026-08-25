@@ -1,9 +1,9 @@
 package com.careerforge.careerforge.profile.domain;
 
-
 import com.careerforge.careerforge.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "profiles")
 @Getter
+@NoArgsConstructor
 public class Profile {
 
     @Id
@@ -24,55 +25,56 @@ public class Profile {
     )
     private User user;
 
-    @Column(name = "full_name", length = 255)
+    @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number", length = 50)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(length = 255)
     private String location;
 
-    @Column(length = 500)
     private String headline;
 
-    @Column(name = "current_role_name", length = 255)
-    private String currentRole;
+    @Column(name = "current_role_name")
+    private String currentRoleName;
 
-    @Column(name = "linkedin_url", length = 500)
+    @Column(name = "linkedin_url")
     private String linkedinUrl;
 
-    @Column(name = "portfolio_url", length = 500)
+    @Column(name = "portfolio_url")
     private String portfolioUrl;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    protected Profile() {
-        // Required by JPA
-    }
-
     public Profile(User user) {
+        this.id = UUID.randomUUID();
         this.user = user;
-    }
 
-    @PrePersist
-    private void prePersist() {
         Instant now = Instant.now();
-
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-
-        createdAt = now;
-        updatedAt = now;
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
-    @PreUpdate
-    private void preUpdate() {
-        updatedAt = Instant.now();
+    public void update(
+            String fullName,
+            String phoneNumber,
+            String location,
+            String headline,
+            String currentRoleName,
+            String linkedinUrl,
+            String portfolioUrl
+    ) {
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.location = location;
+        this.headline = headline;
+        this.currentRoleName = currentRoleName;
+        this.linkedinUrl = linkedinUrl;
+        this.portfolioUrl = portfolioUrl;
+        this.updatedAt = Instant.now();
     }
 }
