@@ -91,4 +91,16 @@ public class ResumeController {
                 resumeId
         );
     }
+
+    @GetMapping("/{resumeId}/full")
+    public FullResumeResponse getFullResume(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID resumeId
+    ) {
+
+        return resumeService.getFullResume(
+                user.getId(),
+                resumeId
+        );
+    }
 }

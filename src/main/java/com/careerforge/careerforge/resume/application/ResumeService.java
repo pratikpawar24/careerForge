@@ -1,5 +1,15 @@
 package com.careerforge.careerforge.resume.application;
 
+
+import com.careerforge.careerforge.resume.api.FullResumeResponse;
+import com.careerforge.careerforge.resume.api.ResumeEducationResponse;
+import com.careerforge.careerforge.resume.api.ResumeExperienceResponse;
+import com.careerforge.careerforge.resume.api.ResumeProjectResponse;
+import com.careerforge.careerforge.resume.api.ResumeSkillResponse;
+import com.careerforge.careerforge.resume.domain.ResumeExperienceRepository;
+import com.careerforge.careerforge.resume.domain.ResumeEducationRepository;
+import com.careerforge.careerforge.resume.domain.ResumeSkillRepository;
+import com.careerforge.careerforge.resume.domain.ResumeProjectRepository;
 import com.careerforge.careerforge.common.exception.ResourceNotFoundException;
 import com.careerforge.careerforge.resume.api.CreateResumeRequest;
 import com.careerforge.careerforge.resume.api.ResumeResponse;
@@ -17,15 +27,28 @@ import java.util.UUID;
 @Service
 public class ResumeService {
 
+    private final ResumeExperienceRepository experienceRepository;
+    private final ResumeEducationRepository educationRepository;
+    private final ResumeSkillRepository skillRepository;
+    private final ResumeProjectRepository projectRepository;
+
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
 
     public ResumeService(
             ResumeRepository resumeRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ResumeExperienceRepository experienceRepository,
+            ResumeEducationRepository educationRepository,
+            ResumeSkillRepository skillRepository,
+            ResumeProjectRepository projectRepository
     ) {
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
+        this.experienceRepository = experienceRepository;
+        this.educationRepository = educationRepository;
+        this.skillRepository = skillRepository;
+        this.projectRepository = projectRepository;
     }
 
     @Transactional
@@ -172,6 +195,103 @@ public class ResumeService {
                 resume.isDefault(),
                 resume.getCreatedAt(),
                 resume.getUpdatedAt()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public FullResumeResponse getFullResume(
+            UUID userId,
+            UUID resumeId
+    ) {
+
+        User user = getUser(userId);
+
+        Resume resume = findResume(resumeId, user);
+
+        List<ResumeExperienceResponse> experiences =
+                experienceRepository
+                        .findAllByResumeOrderByDisplayOrderAsc(resume)
+                        .stream()
+                        .map(experience ->
+                                new ResumeExperienceResponse(
+                                        experience.getId(),
+                                        experience.getCompanyName(),
+                                        experience.getJobTitle(),
+                                        experience.getLocation(),
+                                        experience.getEmploymentType(),
+                                        experience.getStartDate(),
+                                        experience.getEndDate(),
+                                        experience.isCurrentlyWorking(),
+                                        experience.getDescription(),
+                                        experience.getDisplayOrder()
+                                )
+                        )
+                        .toList();
+
+        List<ResumeEducationResponse> educations =
+                educationRepository
+                        .findAllByResumeOrderByDisplayOrderAsc(resume)
+                        .stream()
+                        .map(education ->
+                                new ResumeEducationResponse(
+                                        education.getId(),
+                                        education.getInstitutionName(),
+                                        education.getDegree(),
+                                        education.getFieldOfStudy(),
+                                        education.getLocation(),
+                                        education.getStartDate(),
+                                        education.getEndDate(),
+                                        education.isCurrentlyStudying(),
+                                        education.getGrade(),
+                                        education.getDescription(),
+                                        education.getDisplayOrder()
+                                )
+                        )
+                        .toList();
+
+        List<ResumeSkillResponse> skills =
+                skillRepository
+                        .findAllByResumeOrderByDisplayOrderAsc(resume)
+                        .stream()
+                        .map(skill ->
+                                new ResumeSkillResponse(
+                                        skill.getId(),
+                                        skill.getName(),
+                                        skill.getCategory(),
+                                        skill.getProficiencyLevel(),
+                                        skill.getDisplayOrder()
+                                )
+                        )
+                        .toList();
+
+        List<ResumeProjectResponse> projects =
+                projectRepository
+                        .findAllByResumeOrderByDisplayOrderAsc(resume)
+                        .stream()
+                        .map(project ->
+                                new ResumeProjectResponse(
+                                        project.getId(),
+                                        project.getName(),
+                                        project.getDescription(),
+                                        project.getTechnologies(),
+                                        project.getProjectUrl(),
+                                        project.getRepositoryUrl(),
+                                        project.getStartDate(),
+                                        project.getEndDate(),
+                                        project.isCurrentlyWorking(),
+                                        project.getDisplayOrder()
+                                )
+                        )
+                        .toList();
+
+        return new FullResumeResponse(
+                resume.getId(),
+                resume.getName(),
+                resume.isDefault(),
+                experiences,
+                educations,
+                skills,
+                projects
         );
     }
 }
