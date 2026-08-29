@@ -1,6 +1,6 @@
 package com.careerforge.careerforge.resume.application;
 
-
+import com.careerforge.careerforge.resume.domain.ResumeTemplate;
 import com.careerforge.careerforge.resume.api.FullResumeResponse;
 import com.careerforge.careerforge.resume.api.ResumeEducationResponse;
 import com.careerforge.careerforge.resume.api.ResumeExperienceResponse;
@@ -27,6 +27,7 @@ import java.util.UUID;
 @Service
 public class ResumeService {
 
+    private final ResumeRenderer resumeRenderer;
     private final ResumeExperienceRepository experienceRepository;
     private final ResumeEducationRepository educationRepository;
     private final ResumeSkillRepository skillRepository;
@@ -41,7 +42,8 @@ public class ResumeService {
             ResumeExperienceRepository experienceRepository,
             ResumeEducationRepository educationRepository,
             ResumeSkillRepository skillRepository,
-            ResumeProjectRepository projectRepository
+            ResumeProjectRepository projectRepository,
+            ResumeRenderer resumeRenderer
     ) {
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
@@ -49,6 +51,7 @@ public class ResumeService {
         this.educationRepository = educationRepository;
         this.skillRepository = skillRepository;
         this.projectRepository = projectRepository;
+        this.resumeRenderer = resumeRenderer;
     }
 
     @Transactional
@@ -292,6 +295,19 @@ public class ResumeService {
                 educations,
                 skills,
                 projects
+        );
+    }
+    @Transactional(readOnly = true)
+    public String previewResume(
+            UUID userId,
+            UUID resumeId
+    ) {
+        FullResumeResponse resume =
+                getFullResume(userId, resumeId);
+
+        return resumeRenderer.render(
+                resume,
+                ResumeTemplate.CLASSIC
         );
     }
 }

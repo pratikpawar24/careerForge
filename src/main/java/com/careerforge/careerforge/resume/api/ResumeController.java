@@ -103,4 +103,14 @@ public class ResumeController {
                 resumeId
         );
     }
+    @GetMapping("/{resumeId}/preview")
+    public String previewResume(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID resumeId
+    ) {
+        return resumeService.previewResume(
+                user.getId(),
+                resumeId
+        );
+    }
 }
