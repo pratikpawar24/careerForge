@@ -28,7 +28,7 @@ import java.util.UUID;
 @Service
 public class ResumeService {
     private final PdfResumeGenerator pdfResumeGenerator;
-    private final ResumeRenderer resumeRenderer;
+    private final ResumeRendererResolver resumeRendererResolver;
     private final ResumeExperienceRepository experienceRepository;
     private final ResumeEducationRepository educationRepository;
     private final ResumeSkillRepository skillRepository;
@@ -44,8 +44,9 @@ public class ResumeService {
             ResumeEducationRepository educationRepository,
             ResumeSkillRepository skillRepository,
             ResumeProjectRepository projectRepository,
-            ResumeRenderer resumeRenderer,
-            PdfResumeGenerator pdfResumeGenerator
+            PdfResumeGenerator pdfResumeGenerator,
+            ResumeRendererResolver resumeRendererResolver
+
     ) {
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
@@ -53,10 +54,14 @@ public class ResumeService {
         this.educationRepository = educationRepository;
         this.skillRepository = skillRepository;
         this.projectRepository = projectRepository;
-        this.resumeRenderer = resumeRenderer;
+        this.resumeRendererResolver = resumeRendererResolver;
         this.pdfResumeGenerator = pdfResumeGenerator;
     }
-
+    private ResumeRenderer resolveRenderer(Resume resume) {
+        return resumeRendererResolver.resolve(
+                resume.getTemplate()
+        );
+    }
     @Transactional
     public ResumeResponse createResume(
             UUID userId,
@@ -69,10 +74,16 @@ public class ResumeService {
                 .findByUserAndIsDefaultTrue(user)
                 .isEmpty();
 
+        ResumeTemplate template =
+                request.template() != null
+                        ? request.template()
+                        : ResumeTemplate.CLASSIC;
+
         Resume resume = new Resume(
                 user,
-                request.name(),
-                shouldBeDefault
+                request.name().trim(),
+                shouldBeDefault,
+                template
         );
 
         Resume savedResume = resumeRepository.save(resume);
@@ -114,7 +125,11 @@ public class ResumeService {
 
         Resume resume = findResume(resumeId, user);
 
-        resume.updateName(request.name());
+        resume.updateName(request.name().trim());
+
+        if (request.template() != null) {
+            resume.updateTemplate(request.template());
+        }
 
         return toResponse(resume);
     }
@@ -200,7 +215,8 @@ public class ResumeService {
                 resume.getName(),
                 resume.isDefault(),
                 resume.getCreatedAt(),
-                resume.getUpdatedAt()
+                resume.getUpdatedAt(),
+                resume.getTemplate()
         );
     }
 
@@ -294,6 +310,7 @@ public class ResumeService {
                 resume.getId(),
                 resume.getName(),
                 resume.isDefault(),
+                resume.getTemplate(),
                 experiences,
                 educations,
                 skills,
@@ -305,27 +322,34 @@ public class ResumeService {
             UUID userId,
             UUID resumeId
     ) {
-        FullResumeResponse resume =
+        User user = getUser(userId);
+
+        Resume resume = findResume(resumeId, user);
+
+        FullResumeResponse fullResume =
                 getFullResume(userId, resumeId);
 
-        return resumeRenderer.render(
-                resume,
-                ResumeTemplate.CLASSIC
-        );
+        ResumeRenderer renderer =
+                resolveRenderer(resume);
+
+        return renderer.render(fullResume);
     }
     @Transactional(readOnly = true)
     public byte[] generatePdf(
             UUID userId,
             UUID resumeId
     ) {
+        User user = getUser(userId);
 
-        FullResumeResponse resume =
+        Resume resume = findResume(resumeId, user);
+
+        FullResumeResponse fullResume =
                 getFullResume(userId, resumeId);
 
-        String html = resumeRenderer.render(
-                resume,
-                ResumeTemplate.CLASSIC
-        );
+        ResumeRenderer renderer =
+                resolveRenderer(resume);
+
+        String html = renderer.render(fullResume);
 
         return pdfResumeGenerator.generate(html);
     }

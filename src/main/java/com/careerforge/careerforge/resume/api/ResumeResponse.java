@@ -1,5 +1,7 @@
 package com.careerforge.careerforge.resume.api;
 
+import com.careerforge.careerforge.resume.domain.ResumeTemplate;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -9,6 +11,7 @@ public record ResumeResponse(
         String name,
         boolean isDefault,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        ResumeTemplate template
 ) {
 }

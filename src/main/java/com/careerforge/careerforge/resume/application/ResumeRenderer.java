@@ -5,8 +5,7 @@ import com.careerforge.careerforge.resume.domain.ResumeTemplate;
 
 public interface ResumeRenderer {
 
-    String render(
-            FullResumeResponse resume,
-            ResumeTemplate template
-    );
+    String render(FullResumeResponse resume);
+
+    ResumeTemplate getTemplate();
 }

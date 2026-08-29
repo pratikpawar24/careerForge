@@ -9,12 +9,11 @@ import com.careerforge.careerforge.resume.domain.ResumeTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HtmlResumeRenderer implements ResumeRenderer {
+public class ClassicResumeRenderer implements ResumeRenderer {
 
     @Override
     public String render(
-            FullResumeResponse resume,
-            ResumeTemplate template
+            FullResumeResponse resume
     ) {
 
         StringBuilder html = new StringBuilder();
@@ -250,5 +249,9 @@ public class HtmlResumeRenderer implements ResumeRenderer {
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;");
+    }
+    @Override
+    public ResumeTemplate getTemplate() {
+        return ResumeTemplate.CLASSIC;
     }
 }

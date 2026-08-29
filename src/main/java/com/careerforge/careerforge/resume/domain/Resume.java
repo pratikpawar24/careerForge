@@ -4,7 +4,7 @@ import com.careerforge.careerforge.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import com.careerforge.careerforge.resume.domain.ResumeTemplate;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -33,15 +33,21 @@ public class Resume {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private ResumeTemplate template;
+
     public Resume(
             User user,
             String name,
-            boolean isDefault
+            boolean isDefault,
+            ResumeTemplate template
     ) {
         this.id = UUID.randomUUID();
         this.user = user;
         this.name = name;
         this.isDefault = isDefault;
+        this.template = template;
 
         Instant now = Instant.now();
         this.createdAt = now;
@@ -55,6 +61,10 @@ public class Resume {
 
     public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
+        this.updatedAt = Instant.now();
+    }
+    public void updateTemplate(ResumeTemplate template) {
+        this.template = template;
         this.updatedAt = Instant.now();
     }
 }
