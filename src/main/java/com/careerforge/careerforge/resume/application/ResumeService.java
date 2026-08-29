@@ -16,6 +16,7 @@ import com.careerforge.careerforge.resume.api.ResumeResponse;
 import com.careerforge.careerforge.resume.api.UpdateResumeRequest;
 import com.careerforge.careerforge.resume.domain.Resume;
 import com.careerforge.careerforge.resume.domain.ResumeRepository;
+import com.careerforge.careerforge.resume.infrastructure.pdf.PdfResumeGenerator;
 import com.careerforge.careerforge.user.domain.User;
 import com.careerforge.careerforge.user.domain.UserRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import java.util.UUID;
 
 @Service
 public class ResumeService {
-
+    private final PdfResumeGenerator pdfResumeGenerator;
     private final ResumeRenderer resumeRenderer;
     private final ResumeExperienceRepository experienceRepository;
     private final ResumeEducationRepository educationRepository;
@@ -43,7 +44,8 @@ public class ResumeService {
             ResumeEducationRepository educationRepository,
             ResumeSkillRepository skillRepository,
             ResumeProjectRepository projectRepository,
-            ResumeRenderer resumeRenderer
+            ResumeRenderer resumeRenderer,
+            PdfResumeGenerator pdfResumeGenerator
     ) {
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
@@ -52,6 +54,7 @@ public class ResumeService {
         this.skillRepository = skillRepository;
         this.projectRepository = projectRepository;
         this.resumeRenderer = resumeRenderer;
+        this.pdfResumeGenerator = pdfResumeGenerator;
     }
 
     @Transactional
@@ -309,5 +312,21 @@ public class ResumeService {
                 resume,
                 ResumeTemplate.CLASSIC
         );
+    }
+    @Transactional(readOnly = true)
+    public byte[] generatePdf(
+            UUID userId,
+            UUID resumeId
+    ) {
+
+        FullResumeResponse resume =
+                getFullResume(userId, resumeId);
+
+        String html = resumeRenderer.render(
+                resume,
+                ResumeTemplate.CLASSIC
+        );
+
+        return pdfResumeGenerator.generate(html);
     }
 }

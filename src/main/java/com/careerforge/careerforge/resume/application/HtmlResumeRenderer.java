@@ -20,12 +20,12 @@ public class HtmlResumeRenderer implements ResumeRenderer {
         StringBuilder html = new StringBuilder();
 
         html.append("""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>
-                """);
+        <!DOCTYPE html>
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+            <meta charset="UTF-8" />
+            <title>
+        """);
 
         html.append(escape(resume.name()));
 
@@ -97,7 +97,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
 
             html.append("<strong>")
                     .append(escape(experience.jobTitle()))
-                    .append("</strong><br>");
+                    .append("</strong><br/>");
 
             html.append(escape(experience.companyName()));
 
@@ -106,7 +106,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
                         .append(escape(experience.location()));
             }
 
-            html.append("<br>");
+            html.append("<br/>");
 
             html.append("<span class=\"muted\">")
                     .append(experience.startDate())
@@ -148,7 +148,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
 
             html.append("<strong>")
                     .append(escape(education.degree()))
-                    .append("</strong><br>");
+                    .append("</strong><br/>");
 
             html.append(escape(
                     education.institutionName()
@@ -162,7 +162,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
             }
 
             if (education.grade() != null) {
-                html.append("<br>")
+                html.append("<br/>")
                         .append("Grade: ")
                         .append(escape(education.grade()));
             }
@@ -195,7 +195,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
                         .append(")");
             }
 
-            html.append("</span><br>");
+            html.append("</span><br/>");
         }
     }
 
@@ -220,7 +220,7 @@ public class HtmlResumeRenderer implements ResumeRenderer {
                     .append("</strong>");
 
             if (project.technologies() != null) {
-                html.append("<br>")
+                html.append("<br/>")
                         .append(escape(
                                 project.technologies()
                         ));

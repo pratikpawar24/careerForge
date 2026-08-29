@@ -1,5 +1,8 @@
 package com.careerforge.careerforge.resume.api;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import com.careerforge.careerforge.resume.application.ResumeService;
 import com.careerforge.careerforge.user.domain.User;
 import jakarta.validation.Valid;
@@ -112,5 +115,28 @@ public class ResumeController {
                 user.getId(),
                 resumeId
         );
+    }
+    @GetMapping(
+            value = "/{resumeId}/pdf",
+            produces = "application/pdf"
+    )
+    public ResponseEntity<byte[]> generatePdf(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID resumeId
+    ) {
+
+        byte[] pdf = resumeService.generatePdf(
+                user.getId(),
+                resumeId
+        );
+
+        return ResponseEntity
+                .ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"resume.pdf\""
+                )
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }
