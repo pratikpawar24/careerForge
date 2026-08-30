@@ -8,6 +8,7 @@ import { AppLayout } from "./layouts/AppLayout";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 import { ResumeListPage } from "./features/resume/pages/ResumeListPage";
 import { CreateResumePage } from "./features/resume/pages/CreateResumePage";
+import { ResumeEditorPage } from "./features/resume/pages/ResumeEditorPage";
 
 function App() {
   return (
@@ -47,6 +48,11 @@ function App() {
           <Route
             path="/resumes/new"
             element={<CreateResumePage />}
+          />
+          
+          <Route
+            path="/resumes/:resumeId"
+            element={<ResumeEditorPage />}
           />
 
           <Route
