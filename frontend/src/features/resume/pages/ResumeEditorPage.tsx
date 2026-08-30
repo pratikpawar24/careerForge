@@ -7,6 +7,7 @@ import { Container } from "../../../components/common/Container";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { useState } from "react";
+import { EducationSection } from "../components/EducationSection";
 
 export function ResumeEditorPage() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -163,10 +164,15 @@ export function ResumeEditorPage() {
                 </button>
 
                 <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
-                >
-                  Education
+                    type="button"
+                    onClick={() => setActiveSection("education")}
+                    className={
+                        activeSection === "education"
+                        ? "w-full rounded-lg bg-zinc-100 px-3 py-2.5 text-left text-sm font-medium text-zinc-950"
+                        : "w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    }
+                    >
+                    Education
                 </button>
 
                 <button
@@ -235,6 +241,11 @@ export function ResumeEditorPage() {
                 {activeSection === "experience" && (
                     <ExperienceSection
                     resumeId={resume.id}
+                    />
+                )}
+                {activeSection === "education" && (
+                    <EducationSection
+                        resumeId={resume.id}
                     />
                 )}
 
