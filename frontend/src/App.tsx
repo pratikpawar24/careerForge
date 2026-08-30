@@ -3,6 +3,7 @@ import { VerifyEmailPage } from "./features/auth/pages/VerifyEmailPage";
 import { LandingPage } from "./features/landing/LandingPage";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { RegisterPage } from "./features/auth/pages/RegisterPage";
+import { LoginPage } from "./features/auth/pages/LoginPage";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
 
         <Route
           path="/login"
-          element={<div>Login</div>}
+          element={<LoginPage />}
         />
 
         <Route

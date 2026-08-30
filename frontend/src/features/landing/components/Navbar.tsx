@@ -2,6 +2,7 @@ import { Menu } from "lucide-react";
 import { Logo } from "../../../components/common/Logo";
 import { Container } from "../../../components/common/Container";
 import { Button } from "../../../components/ui/Button";
+import { Link } from "react-router-dom";
 
 export function Navbar() {
   return (
@@ -34,13 +35,17 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Button variant="ghost">
-              Log in
-            </Button>
+            <Link to="/login">
+              <Button variant="ghost">
+                Log in
+              </Button>
+            </Link>
 
-            <Button>
-              Get started
-            </Button>
+            <Link to="/register">
+              <Button>
+                Get started
+              </Button>
+            </Link>
           </div>
 
           <button
