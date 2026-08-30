@@ -1,19 +1,13 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { Navbar } from "../features/landing/components/Navbar";
 
-interface PublicLayoutProps {
-  children: ReactNode;
-}
-
-export function PublicLayout({
-  children,
-}: PublicLayoutProps) {
+export function PublicLayout() {
   return (
     <div className="min-h-screen bg-white text-zinc-950">
       <Navbar />
 
       <main>
-        {children}
+        <Outlet />
       </main>
     </div>
   );

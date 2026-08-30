@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LandingPage } from "./features/landing/LandingPage";
+import { PublicLayout } from "./layouts/PublicLayout";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={<LandingPage />}
-        />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<LandingPage />} />
+        </Route>
 
         <Route
           path="/login"
