@@ -6,6 +6,8 @@ import { RegisterPage } from "./features/auth/pages/RegisterPage";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { AppLayout } from "./layouts/AppLayout";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
+import { ResumeListPage } from "./features/resume/pages/ResumeListPage";
+import { CreateResumePage } from "./features/resume/pages/CreateResumePage";
 
 function App() {
   return (
@@ -39,7 +41,12 @@ function App() {
 
           <Route
             path="/resumes"
-            element={<div>Resumes</div>}
+            element={<ResumeListPage />}
+          />
+
+          <Route
+            path="/resumes/new"
+            element={<CreateResumePage />}
           />
 
           <Route
