@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LandingPage } from "./features/landing/LandingPage";
 
 function App() {
   return (
@@ -6,7 +7,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<div>CareerForge</div>}
+          element={<LandingPage />}
         />
 
         <Route
