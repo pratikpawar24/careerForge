@@ -8,6 +8,8 @@ import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { useState } from "react";
 import { EducationSection } from "../components/EducationSection";
+import { SkillsSection } from "../components/SkillsSection";
+import { ProjectsSection } from "../components/ProjectsSection";
 
 export function ResumeEditorPage() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -177,14 +179,24 @@ export function ResumeEditorPage() {
 
                 <button
                   type="button"
-                  className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                  onClick={() => setActiveSection("skills")}
+                  className={
+                    activeSection === "skills"
+                      ? "w-full rounded-lg bg-zinc-100 px-3 py-2.5 text-left text-sm font-medium text-zinc-950"
+                      : "w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                  }
                 >
                   Skills
                 </button>
 
                 <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    type="button"
+                    onClick={() => setActiveSection("projects")}
+                    className={
+                      activeSection === "projects"
+                          ? "w-full rounded-lg bg-zinc-100 px-3 py-2.5 text-left text-sm font-medium text-zinc-950"
+                          : "w-full rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    }
                 >
                   Projects
                 </button>
@@ -245,6 +257,16 @@ export function ResumeEditorPage() {
                 )}
                 {activeSection === "education" && (
                     <EducationSection
+                        resumeId={resume.id}
+                    />
+                )}
+                {activeSection === "skills" && (
+                  <SkillsSection
+                    resumeId={resume.id}
+                  />
+                )}
+                {activeSection === "projects" && (
+                    <ProjectsSection
                         resumeId={resume.id}
                     />
                 )}
